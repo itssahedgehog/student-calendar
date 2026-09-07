@@ -2,13 +2,14 @@ from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 from groq import Groq
 import json
+import api
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
 CORS(app)
 
 # Initialize the official Groq client
-client = Groq(api_key="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")
+client = Groq(api_key=api.return_api)
 
 @app.route('/')
 def index():
