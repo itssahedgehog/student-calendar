@@ -4,12 +4,16 @@ from groq import Groq
 import json
 import api
 from datetime import datetime, timedelta
+import os
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
 # Initialize the official Groq client
-client = Groq(api_key=api.return_api)
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 @app.route('/')
 def index():
