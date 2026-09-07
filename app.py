@@ -2,9 +2,7 @@ from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 from groq import Groq
 import json
-import api
 from datetime import datetime, timedelta
-import os
 import os
 from dotenv import load_dotenv
 load_dotenv()
