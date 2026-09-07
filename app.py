@@ -4,6 +4,8 @@ from groq import Groq
 import json
 from datetime import datetime, timedelta
 import os
+from dotenv import load_dotenv
+load_dotenv("api.env")
 
 #hi
 
@@ -13,24 +15,28 @@ CORS(app)
 # Initialize the official Groq client
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
 # Place helper function right here:
+# UPDATED FIX
 def determine_intensity(name, item_type):
     name_lower = name.lower()
+    item_type_upper = str(item_type).upper()
     
-    # 1. Quizzes, Quick Homework, and Minor Tasks -> Low (Green/Yellow depending on UI)
-    if 'quiz' in name_lower or 'homework' in name_lower or item_type == 'ASSIGNMENT':
+    # Non-academic tasks default to low operational load
+    if item_type_upper in ['EC', 'EVENT', 'WORK', 'MEETING']:
         return "Low"
 
-    # 2. STEM Heavy Exams & Complex Lab Reports -> High (Red)
-    stem_heavy = ['chemistry', 'chem', 'physics', 'math', 'calculus', 'biology', 'bio', 'stem']
-    if any(subject in name_lower for subject in stem_heavy) and 'report' not in name_lower:
+    if any(k in name_lower for k in ['quiz', 'homework', 'prep', 'review', 'sync']) or item_type_upper == 'ASSIGNMENT':
+        return "Low"
+
+    stem_keywords = ['chem', 'phys', 'math', 'calc', 'bio', 'stem', 'ece', 'cs', 'eng', 'algo']
+    if any(subject in name_lower for subject in stem_keywords) and not any(k in name_lower for k in ['report', 'notes', 'slide']):
         return "High"
 
-    # 3. Humanities, Essays, and General Reviews -> Medium (Blue)
     return "Medium"
 
 def reserve_slot(occupied_by_date, date_str, desired_start_min, duration_min, step_min=30, allow_rollover=True):
@@ -202,7 +208,7 @@ def calculate_schedule_engine(assessments, user_profile, current_date_str):
         actual_date_str, actual_start_min = reserve_slot(occupied_by_date, item_date_str, desired_start_min, custom_duration, allow_rollover=False)
         event_time = f"{actual_start_min // 60:02d}:{actual_start_min % 60:02d}"
 
-        prefix = "⚡ " if item_type in ["EC", "EVENT", "WORK"] else "🎯 "
+        prefix = "⚡ " if item_type in ["EC", "EVENT", "WORK", "MEETING"] else "🎯 "
         clean_title = prefix + str(item_name)
 
         tasks.append({
@@ -215,7 +221,7 @@ def calculate_schedule_engine(assessments, user_profile, current_date_str):
         })
 
         # Skip generating study blocks for ECs/Events—only create study blocks for academic tasks
-        if item_type in ["EC", "EVENT", "WORK"]:
+        if item_type in ["EC", "EVENT", "WORK",  "MEETING"]:
             continue
         
         # 1. Determine the start of the study period for this batch of assessments
@@ -330,20 +336,27 @@ def chat():
             })
 
         # LAYER 1: FLEXIBLE MULTI-ENTITY EXTRACTION
-        intent_prompt = f"""You are a helper that extracts study assignments and exams from user messages.
-Today is {current_date} (Year: 2026).
+        intent_prompt = f"""You are a multi-task extraction parser. Today's reference date is {current_date}.
 
-Extract every single test, report, essay, or homework mentioned.
-Convert date expressions like "August 24th" or "Aug 27" to "2026-08-24" or "2026-08-27".
+Extract EVERY SINGLE academic task (exams, assignments, labs) AND non-academic task (interviews, meetings, club activities, design team syncs) mentioned.
 
-Return JSON with this EXACT structure:
-{{{{
+Rules:
+1. Map all dates to 'YYYY-MM-DD'.
+2. Assign 'type': 'EXAM', 'ASSIGNMENT', 'EC', 'WORK', or 'MEETING'.
+3. For non-academic items or tasks requesting total time, calculate total minutes and store in 'duration' (e.g., 2 hours = 120). If no duration is mentioned for an EC/Meeting, default 'duration' to 60.
+
+Return strict JSON:
+{{
   "assessments": [
-    {{"name": "Advanced Functions Polynomial Quiz", "date": "2026-11-12", "type": "EXAM"}},
-    {{"name": "Robotics CAD Demo", "date": "2026-11-10", "type": "EC", "time": "16:00", "duration": 120}},
-    {{"name": "Part-Time Job Shift", "date": "2026-11-14", "type": "EC", "time": "13:00", "duration": 240}}
+    {{
+      "name": "<Task Name>",
+      "date": "YYYY-MM-DD",
+      "type": "<EXAM|ASSIGNMENT|EC|WORK|MEETING>",
+      "duration": <minutes>,
+      "time": "<optional_HH:MM>"
+    }}
   ]
-}}}}"""
+}}"""
 
         assessments = []
         try:
