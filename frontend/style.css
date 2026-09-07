@@ -1,0 +1,435 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    background-color: #0f172a; 
+    overflow: hidden; 
+}
+
+#app-container {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    height: 100vh;
+    width: 100vw;
+}
+
+.calendar-grid {
+    display: grid;
+    /* FIX: Force columns to be exactly equal by letting them shrink down to 0 minimum width if needed */
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-template-rows: repeat(2, 1fr); /* Force exactly 2 rows */
+    flex-grow: 1; /* */
+    gap: 10px; /* */
+    margin-top: 20px; /* */
+    /* FIX: without this, a flex item defaults to min-height:auto, which lets
+       it grow past the available space to fit its content instead of
+       actually respecting the fixed 2-row grid below */
+    min-height: 0;
+}
+
+.day-column {
+    background-color: #1e293b; /* Keep existing slate color */
+    border: 1px solid #334155; /* */
+    border-radius: 6px; /* */
+    padding: 15px; /* */
+    color: #f8fafc; /* */
+    
+    /* NEW: Show the mouse changes to a hand selector pointer */
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+
+    /* FIX: a busy day's task-bubble stack had nothing constraining its
+       height, so it just overflowed straight through the bottom of this
+       grid cell and overlapped the row underneath. Turning this into a
+       flex column lets the title stay put and hands the remaining space
+       to .tasks-container below, which scrolls instead of overflowing.
+       min-height: 0 is required here too -- grid items default to
+       min-height: auto, which otherwise ignores this entirely and lets
+       the cell grow to fit its content anyway. */
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.day-title {
+    flex-shrink: 0;
+}
+
+.tasks-container {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    margin-top: 8px;
+    padding-right: 4px;
+}
+
+/* Subtle glowing accent color shift when hovering over a day panel */
+.day-column:hover {
+    background-color: #24334d;
+    border-color: #475569;
+}
+
+.calendar {
+    padding: 24px; 
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    
+    /* FIX: Locks the deep dark blue color onto the grid area */
+    background-color: #0f172a; 
+}
+
+/* FIX: Forces "Your Calendar" text to stay crisp white on the dark background */
+.calendar h2 {
+    color: #f8fafc;
+    font-weight: 700;
+}
+
+/* ==========================================
+   AI CHATBOT SIDEBAR STYLES
+   ========================================== */
+
+.sidebar {
+    background-color: #1e293b; /* Keep your slate color */
+    padding: 24px;
+    border-right: 1px solid #334155;
+    color: #f8fafc;
+    
+    /* FIX: Force the sidebar to behave like a vertical column stack */
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Takes up exactly the full screen height */
+}
+
+.sidebar h2 {
+    color: #f8fafc; /* Clean off-white color matching your calendar title */
+    font-weight: 700;
+}
+
+/* Add spacing under the chat header */
+.chat-header {
+    margin-bottom: 20px;       /* Increased gap below header */
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chat-messages {
+    flex-grow: 1;             /* Tells the chat area to soak up all available middle space */
+    overflow-y: auto;         /* Crucial: Forces a scrollbar when messages overflow */
+    margin-bottom: 16px;      /* Pushes a clean gap above the input box */
+    padding-top: 12px;        /* 👈 NEW: Adds breathing room above the first message bubble */
+    padding-right: 4px;       /* Keeps text from hugging the scrollbar track */
+}
+
+/* Chat text bubble style */
+.message {
+    color: #f8fafc;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    padding: 12px;
+    background-color: #334155; 
+    border-radius: 8px;
+    max-width: 90%;
+    margin: 0;
+
+    /* ADD THIS LINE FOR THE HALO EFFECT */
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.15); 
+}
+
+/* Container keeping input and button on the same horizontal line */
+.chat-input-container {
+    display: flex;            /* Keeps input and button side-by-side */
+    gap: 8px;
+    margin-top: auto;         /* Comfortably locks it to the very bottom of the sidebar */
+    flex-shrink: 0;           /* Prevents the input box itself from squishing */
+}
+
+/* The text input field */
+.chat-input-container input {
+    flex-grow: 1;
+    background-color: #0f172a; /* Darker field interior */
+    border: 1px solid #334155;
+    border-radius: 6px;
+    padding: 12px;
+    color: #f8fafc;
+    font-size: 0.9rem;
+    outline: none;
+    font-family: inherit; /* Ensures Space Grotesk carries over */
+}
+
+/* Blue glow outline accent when user selects the input box */
+.chat-input-container input:focus {
+    border-color: #38bdf8; 
+}
+
+/* The Send button */
+#send-btn {
+    background-color: #38bdf8; /* Vibrant tech blue accent */
+    color: #0f172a; /* Dark contrast text */
+    border: none;
+    border-radius: 6px;
+    padding: 8px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background-color 0.2s ease; /* Smooth hover effect transition */
+}
+
+/* Slightly brighter blue when hover state triggers */
+#send-btn:hover {
+    background-color: #7dd3fc; 
+}
+
+/* 1. Put some breathing room between any stacking chat bubbles */
+.chat-messages .message {
+    margin-bottom: 12px;
+}
+
+/* 2. Fix the text wrap and make bubbles auto-shrink to their text size */
+.message {
+    width: fit-content;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* 3. Style overrides ONLY for your own typed messages */
+.user-message {
+    background-color: #38bdf8; /* Sleek blue background */
+    color: #0f172a; /* Dark text for readability */
+    margin-left: auto; /* Pushes your bubble firmly to the right side */
+    padding: 10px 14px; /* Distinct padding for your text */
+}
+
+/* ==========================================
+   CALENDAR HEADER & NAVIGATION CONTROLS
+   ========================================== */
+
+/* This container holds your title and the arrow buttons button box */
+.calendar-header {
+    display: flex;
+    justify-content: flex-start; /* Changes from space-between to group them on the left */
+    align-items: center;            
+    padding-bottom: 16px;           
+    gap: 20px;                   /* This adds a gorgeous, spacious gap between the text and the buttons */
+}
+
+/* This box groups the two arrow buttons together */
+.nav-controls {
+    display: flex;
+    gap: 12px;                      /* Controls the exact distance between the two arrows */
+}
+
+/* Styled navigation buttons */
+.nav-btn {
+    background-color: #1e293b;      /* Matches your day column blocks */
+    border: 1px solid #334155;      /* Subtle border color */
+    color: #f8fafc;                 /* Crisp white arrow symbol */
+    border-radius: 6px;             /* Gives them a modern rounded look */
+    padding: 8px 14px;              /* Gives the arrows breathing room inside the buttons */
+    font-size: 0.95rem;
+    cursor: pointer;                /* Makes the mouse turn into a pointer clicker */
+    transition: all 0.2s ease;      /* Smoothly animates the hover transition */
+}
+
+/* Interactive hover glow effect */
+.nav-btn:hover {
+    background-color: #334155;      /* Darkens up slightly */
+    border-color: #38bdf8;          /* Gives it that tech-blue glowing edge */
+    color: #38bdf8;                 /* Turns the arrow symbol bright blue */
+}
+
+/* ==========================================
+   POPUP MODAL OVERLAY STYLES
+   ========================================== */
+
+/* The full-screen dark backdrop */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(15, 23, 42, 0.75); /* Dark translucent glass color */
+    backdrop-filter: blur(4px);               /* Blurs the calendar behind it */
+    display: none;                             /* HIDDEN BY DEFAULT */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;                            /* Forces it to sit on top of everything else */
+}
+
+/* The actual center card dialogue box */
+.modal-box {
+    background-color: #1e293b;
+    padding: 30px;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    
+    /* FIX: Make it wider to perfectly showcase all 3 timeline blocks side-by-side */
+    width: 90%;
+    max-width: 850px; 
+    position: relative;
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5);
+}
+
+/* This controls the scrolling list space inside your enlarged popup */
+.modal-body {
+    flex-grow: 1;                  /* Fills up the remaining vertical space inside the card */
+    overflow-y: auto;              /* Automatically creates a scrollbar if assignments get long */
+    margin-top: 10px;
+    padding-right: 8px;            /* Keeps the text from hugging the scrollbar track */
+}
+
+/* Close 'X' button on top-right of popup */
+#close-modal-btn {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    background: none;
+    border: none;
+    color: #64748b;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+#close-modal-btn:hover {
+    color: #f8fafc;
+}
+
+#modal-day-title {
+    color: #38bdf8; /* Uses your signature blue accent */
+    margin-bottom: 16px;
+    font-size: 1.3rem;
+}
+
+/* ==========================================
+   TASK BUBBLE STYLES (INSIDE CALENDAR DAYS)
+   ========================================== */
+
+.task-bubble {
+    background-color: #334155;      /* Distinct lighter slate bubble */
+    border: 1px solid #475569;      /* Subtle border */
+    border-radius: 5px;
+    padding: 4px 8px;               /* 👈 Compact slim padding (reduced from 8px 12px) */
+    margin-top: 4px;                /* 👈 Reduced margin gap between stacked tasks */
+    color: #f8fafc;                 /* Crisp white text for the task title */
+    font-size: 0.75rem;             /* 👈 Slightly smaller font so titles fit on busy days */
+    font-weight: 500;
+    line-height: 1.2;               /* 👈 Tight line height to prevent tall boxes */
+    cursor: pointer;                
+    transition: all 0.2s ease;
+    
+    /* Keeps text clean if the assignment name is super long */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+}
+
+/* Hover effect specifically when user points at a task */
+.task-bubble:hover {
+    border-color: #38bdf8;          /* Tech-blue glow border */
+    background-color: #3e526b;      /* Brightens up slightly */
+    transform: translateY(-1px);    /* Micro-lift animation */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.tasks-container::-webkit-scrollbar {
+    display: none;
+}
+
+/* Kill any absolute pseudo-element timestamps causing double-render overlaps */
+.task-bubble::after,
+.task-bubble::before {
+    content: none !important;
+    display: none !important;
+}
+
+.task-bubble {
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+/* 1. Base transition smooths out scale and hover transforms */
+.task-bubble,
+.day-column,
+button,
+.inner-task-item {
+    transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease !important;
+    will-change: transform;
+}
+
+/* 2. Slight scale lift on hover to indicate interactivity */
+.task-bubble:hover,
+.day-column:hover,
+.inner-task-item:hover {
+    transform: translateY(-2px) scale(1.01);
+}
+
+/* 3. Bounce / Press effect on click (active state) */
+.task-bubble:active,
+.day-column:active,
+button:active,
+.inner-task-item:active {
+    animation: bubbleBounce 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Keyframe animation for the squish-and-bounce feel */
+@keyframes bubbleBounce {
+    0% {
+        transform: scale(1);
+    }
+    40% {
+        transform: scale(0.92); /* Quick tactile squish inward */
+    }
+    75% {
+        transform: scale(1.05); /* Slight playful overshoot bounce */
+    }
+    100% {
+        transform: scale(1); /* Returns to rest */
+    }
+}
+
+/* 1. Modal overlay backdrop fade-in */
+#event-modal {
+    transition: opacity 0.2s ease-in-out;
+}
+
+/* 2. Pop & Bounce entry animation for the modal card */
+#event-modal > div, 
+.modal-content {
+    animation: modalPopBounce 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    will-change: transform, opacity;
+}
+
+/* Keyframes: Starts small, overshoots slightly, settles smoothly */
+@keyframes modalPopBounce {
+    0% {
+        opacity: 0;
+        transform: scale(0.85) translateY(10px);
+    }
+    60% {
+        opacity: 1;
+        transform: scale(1.03) translateY(-2px); /* Slight overshoot */
+    }
+    80% {
+        transform: scale(0.98) translateY(1px);  /* Gentle secondary rebound */
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);       /* Clean rest state */
+    }
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.tasks-container::-webkit-scrollbar {
+    display: none;
+}

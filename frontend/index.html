@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href = "style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+</head>
+<body>
+    <div id = "app-container">
+        <aside class = "sidebar">
+            <h2>
+                AI Assistant
+            </h2>
+
+            <div class="chat-messages">
+                <div class="message ai-message">Hey! I'm your scheduling assistant. What's on your plate this week?</div>
+            </div>
+
+            <div class="chat-input-container">
+                <input id = "chat-input" type="text" placeholder="Type a command (e.g., 'Add math exam next Monday')...">
+                <button id="send-btn">Send</button>
+            </div>
+
+        </aside>
+
+        <main class = "calendar">
+            <div class="calendar-header">
+                <h2>Your Calendar</h2>
+                <div class="nav-controls">
+                    <button id="prev-btn" class="nav-btn">◀</button>
+                    <button id="next-btn" class="nav-btn">▶</button>
+                </div>
+            </div>
+
+            <div class="calendar-grid">
+                <div class="day-column">
+                    <span class="day-title">W1 Mon</span>
+                    <div class="tasks-container"></div>
+                </div>
+                <div class="day-column">
+                    <span class="day-title">W1 Tue</span>
+                    <div class="tasks-container"></div>
+                </div>
+                <div class="day-column">
+                    <span class="day-title">W1 Wed</span>
+                    <div class="tasks-container"></div>
+                </div>
+                <div class="day-column">
+                    <span class="day-title">W1 Thu</span>
+                    <div class="tasks-container"></div>
+                </div>
+                <div class="day-column">
+                    <span class="day-title">W1 Fri</span>
+                    <div class="tasks-container"></div>
+                </div>
+                <div class="day-column">
+                    <span class="day-title">W1 Sat</span>
+                    <div class="tasks-container"></div>
+                </div>
+                <div class="day-column">
+                    <span class="day-title">W1 Sun</span>
+                    <div class="tasks-container"></div>
+                </div>
+
+                <div class="day-column">
+                    <span class="day-title">W2 Mon</span>
+                    <div class="tasks-container"></div>
+                </div>
+                <div class="day-column">
+                    <span class="day-title">W2 Tue</span>
+                    <div class="tasks-container"></div>
+                </div>
+                <div class="day-column">
+                    <span class="day-title">W2 Wed</span>
+                    <div class="tasks-container"></div>
+                </div>
+                <div class="day-column">
+                    <span class="day-title">W2 Thu</span>
+                    <div class="tasks-container"></div>
+                </div>
+                <div class="day-column">
+                    <span class="day-title">W2 Fri</span>
+                    <div class="tasks-container"></div>
+                </div>
+                <div class="day-column">
+                    <span class="day-title">W2 Sat</span>
+                    <div class="tasks-container"></div>
+                </div>
+                <div class="day-column">
+                    <span class="day-title">W2 Sun</span>
+                    <div class="tasks-container"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="event-modal" class="modal-overlay">
+        <div class="modal-box">
+            <button id="close-modal-btn">×</button>
+            <h3 id="modal-day-title">Day Details</h3>
+            <div class="modal-body">
+                <div id="modal-dynamic-content"></div>
+            </div>
+        </div>
+    </div>
+        <div id="onboarding-modal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.95); display: flex; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(8px);">
+            <div style="background: #1e293b; border: 1px solid #334155; border-radius: 12px; width: 500px; max-width: 90%; padding: 30px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); position: relative;">
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <span id="onboarding-step-indicator" style="color: #64748b; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Question 1 of 7</span>
+                    <div style="width: 120px; height: 6px; background: #0f172a; border-radius: 3px; overflow: hidden;">
+                        <div id="onboarding-progress-bar" style="width: 14.2%; height: 100%; background: #38bdf8; transition: width 0.3s ease;"></div>
+                    </div>
+                </div>
+
+                <div id="onboarding-question-box" style="min-height: 200px;"></div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 25px; border-top: 1px solid #334155; padding-top: 20px;">
+                    <button id="onboarding-back-btn" style="background: transparent; color: #64748b; border: none; font-weight: 600; font-size: 0.9rem; cursor: pointer; visibility: hidden; transition: color 0.2s;">◀ Back</button>
+                    <button id="onboarding-next-btn" style="background: #38bdf8; color: #0f172a; border: none; padding: 10px 24px; border-radius: 6px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: background 0.2s;">Next Step ▶</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
