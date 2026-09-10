@@ -282,10 +282,12 @@ body {
 
 /* This controls the scrolling list space inside your enlarged popup */
 .modal-body {
-    flex-grow: 1;                  /* Fills up the remaining vertical space inside the card */
-    overflow-y: auto;              /* Automatically creates a scrollbar if assignments get long */
-    margin-top: 10px;
-    padding-right: 8px;            /* Keeps the text from hugging the scrollbar track */
+    padding: 3px 6px;              /* Tighten internal padding */
+    font-size: 0.70rem;            /* Drop font size slightly (from 0.75rem) */
+    line-height: 1.15;             /* Tighten spacing between lines */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 /* Close 'X' button on top-right of popup */
@@ -319,7 +321,7 @@ body {
     background-color: #334155;      /* Distinct lighter slate bubble */
     border: 1px solid #475569;      /* Subtle border */
     border-radius: 5px;
-    padding: 4px 8px;               /* 👈 Compact slim padding (reduced from 8px 12px) */
+    padding: 6px 8px;               /* 👈 Compact slim padding (reduced from 8px 12px) */
     margin-top: 4px;                /* 👈 Reduced margin gap between stacked tasks */
     color: #f8fafc;                 /* Crisp white text for the task title */
     font-size: 0.75rem;             /* 👈 Slightly smaller font so titles fit on busy days */
@@ -330,8 +332,8 @@ body {
     
     /* Keeps text clean if the assignment name is super long */
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis; 
+    overflow: visible;
+    text-overflow: visidl; 
 }
 
 /* Hover effect specifically when user points at a task */
@@ -432,4 +434,9 @@ button:active,
 /* Hide scrollbar for Chrome, Safari and Opera */
 .tasks-container::-webkit-scrollbar {
     display: none;
+}
+
+/* Increase the height of each hour slot in the daily planner timeline */
+.daily-timeline-hour {
+    height: 70px;                  /* Increase from default (e.g. 50px) to give 60m blocks more vertical room */
 }
